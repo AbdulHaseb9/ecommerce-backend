@@ -1,0 +1,29 @@
+{
+  "name": "abrothers-backend",
+  "version": "1.0.0",
+  "description": "e-commerce application backend",
+  "type": "commonjs",
+  "main": "./src/index.js",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "keywords": [
+    "abrothers",
+    "ecommerce",
+    "mobile",
+    "accessories"
+  ],
+  "author": "haseebsheikh",
+  "license": "ISC",
+  "dependencies": {
+    "cloudinary": "^2.2.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mongoose": "^8.4.1",
+    "multer": "^1.4.5-lts.1",
+    "uuidv4": "^6.2.13"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.3"
+  }
+}
