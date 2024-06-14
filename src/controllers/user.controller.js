@@ -1,7 +1,16 @@
+const User = require("../models/user.model")
 const uploadOnCloudinary = require("../utils/cloudinary")
 
 const registerUser = async (req, resp) => {
-    resp.json('successfully updated to professional backend')
+    const { username, email, password, avatar } = req.body
+    const da = new User({
+        username,
+        email,
+        password,
+        avatar
+    })
+    await da.save()
+    resp.json('success')
 }
 
 const uploadAvatar = async (req, resp) => {
