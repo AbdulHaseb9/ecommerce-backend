@@ -15,16 +15,32 @@ const registerUser = async (req, resp) => {
 
     const hashedpassword = await bcrypt.hash(password, 6)
 
+    const uploadAvatar = await uploadOnCloudinary(avatar)
+
     const newUser = new User({
         username,
         email,
         password: hashedpassword,
-        avatar
+        avatar: uploadAvatar
     })
 
     await newUser.save()
 
     resp.status(201).json({ message: 'User registered successfully' });
+}
+
+// controller for login user
+const loginUser = async (req, resp) => {
+    const { email, password } = req.body
+    const isUserExist = await User.findOne({ email })
+    if (!isUserExist) {
+        return resp.status(404).json({ message: 'User not found' });
+    }
+    const comparePassword = await bcrypt.compare(password, isUserExist.password)
+    if (!comparePassword) {
+        return resp.status(401).json({ message: 'Invalid email or password' });
+    }
+    resp.status(200).json({ message: 'Login successful' })
 }
 
 const addressUser = async (req, resp) => {
@@ -45,9 +61,9 @@ const addressUser = async (req, resp) => {
     resp.json('success')
 }
 
-const uploadAvatar = async (req, resp) => {
+const updateAvatar = async (req, resp) => {
     const result = await uploadOnCloudinary(req.file.path)
     resp.json(result)
 }
 
-module.exports = { registerUser, uploadAvatar, addressUser }
+module.exports = { registerUser, updateAvatar, addressUser, loginUser }
