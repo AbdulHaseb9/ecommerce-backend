@@ -11,7 +11,6 @@ const addressSchema = mongoose.Schema(
         add: {
             type: String,
             require: true,
-            unique: true,
         },
         password: {
             type: String,
@@ -24,6 +23,6 @@ const addressSchema = mongoose.Schema(
 )
 
 
-const Adress = mongoose.model('Address', addressSchema)
+const Address = mongoose.model('Address', addressSchema)
 
-module.exports = Adress
+module.exports = Address
