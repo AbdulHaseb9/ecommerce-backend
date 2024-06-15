@@ -8,16 +8,22 @@ const addressSchema = mongoose.Schema(
                 ref: "User"
             }
         ],
-        add: {
+        house_number: {
             type: String,
             require: true,
         },
-        password: {
+        postal_code: {
+            type: String,
+        },
+        city: {
             type: String,
             require: true,
         },
-        avatar: {
-            type: String, // Cloudinary url
+        state: {
+            type: String,
+        },
+        country: {
+            type: String,
         },
     }, { timestamps: true }
 )
