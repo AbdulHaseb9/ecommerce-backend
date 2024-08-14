@@ -6,61 +6,111 @@ require('dotenv').config()
 
 // controller for registering user
 const registerUser = async (req, resp) => {
-    const { username, email, password, avatar } = req.body
-    const alreadyexist = await User.findOne({ email })
+    try {
+        const { username, email, password, fullname } = req.body
 
-    if (alreadyexist) {
-        return resp.status(409).json({ message: 'email already taken' })
+        // check all field are filled properly
+        if (!username || !email || !password || !fullname) {
+            return resp.status(400).json({ message: 'All fields are required' })
+        }
+
+        // check user already exist  
+        const alreadyexist = await User.findOne({ email })
+
+        // if user already exist return error
+        if (alreadyexist) {
+            return resp.status(409).json({ message: 'email already taken' })
+        }
+
+        const hashedpassword = await bcrypt.hash(password, 6)
+
+        const newUser = new User({
+            username,
+            email,
+            password: hashedpassword,
+            fullname
+        })
+
+        await newUser.save()
+
+        resp.status(201).json({ message: 'User registered successfully' });
+
+    } catch (error) {
+        resp.status(410).json({ error })
     }
-
-    const hashedpassword = await bcrypt.hash(password, 6)
-
-    const uploadAvatar = await uploadOnCloudinary(avatar)
-
-    const newUser = new User({
-        username,
-        email,
-        password: hashedpassword,
-        avatar: uploadAvatar
-    })
-
-    await newUser.save()
-
-    resp.status(201).json({ message: 'User registered successfully' });
 }
 
 // controller for login user
 const loginUser = async (req, resp) => {
-    const { email, password } = req.body
-    const isUserExist = await User.findOne({ email })
-    if (!isUserExist) {
-        return resp.status(404).json({ message: 'User not found' });
+    try {
+        const { email, password } = req.body
+
+        // if fields not filled properly return error
+        if (!email || !password) {
+            return resp.status(400).json({
+                status: 'error',
+                message: 'All fields are required'
+            })
+        }
+
+        // find user using email address
+        const isUserExist = await User.findOne({ email })
+
+        // if user not exist return error
+        if (!isUserExist) {
+            return resp.status(404).json({
+                status: 'error',
+                message: 'User not found'
+            });
+        }
+
+        // compare original password to given password 
+        const comparePassword = await bcrypt.compare(password, isUserExist.password)
+
+        // if password does not match return error 
+        if (!comparePassword) {
+            return resp.status(401).json({
+                status: 'error',
+                message: 'Invalid email or password'
+            });
+        }
+
+        resp.status(200).json({
+            status: "succcess",
+            message: 'Login successful'
+        })
+
+    } catch (error) {
+        resp.status(410).json({
+            status: 'error',
+            error
+        })
     }
-    const comparePassword = await bcrypt.compare(password, isUserExist.password)
-    if (!comparePassword) {
-        return resp.status(401).json({ message: 'Invalid email or password' });
-    }
-    resp.status(200).json({ message: 'Login successful' })
+
 }
 
+// controller to get user address
 const addressUser = async (req, resp) => {
-    const { user, add, password, avatar } = req.body
+    const { user, house_number, postal_code, city, state, country } = req.body
 
     const usr = await User.findById(user)
 
     console.log(usr);
 
-    const da = new Address({
+    const newAddress = new Address({
         user: usr._id,
-        add,
-        password,
-        avatar
+        house_number,
+        postal_code,
+        city,
+        state,
+        country
     })
 
-    await da.save()
+    await newAddress.save()
     resp.json('success')
 }
 
+// controller to update user avatar
 const updateAvatar = async (req, resp) => {
     const result = await uploadOnCloudinary(req.file.path)
     resp.json(result)
